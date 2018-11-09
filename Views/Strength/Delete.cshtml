@@ -1,0 +1,45 @@
+@model FitnessTracker.Models.StrengthWorkout
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>StrengthWorkout</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Activity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Activity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.WeightKG)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.WeightKG)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NumReps)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NumReps)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <input class="btn btn-danger" type="submit" value="Delete" class="btn btn-default" />
+        <a class="btn btn-primary" asp-action="Index">Back to List</a>
+    </form>
+</div>

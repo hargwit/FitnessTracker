@@ -1,0 +1,238 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+@model FitnessTracker.Models.WorkoutChartViewModel
+
+@{
+    ViewData["Title"] = "Main Dashboard";
+}
+
+<div class="container">
+    <div class="row">
+        <h2>Main Dashboard</h2>
+    </div>
+    <div class="row text-center">
+        <h3>Cardio Workouts</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <a class="btn btn-primary" asp-controller="Cardio" asp-action="Create">Create New</a>
+        </div>
+        <div class="col-md-6"></div>
+        <div class="col-md-3">
+            <form class="form" asp-controller="Home" asp-action="Index" method="get">
+                <div class="dropdown">
+                    <select class="btn btn-secondary dropdown-toggle" asp-for="CardioActivity" asp-items="Model.CardioActivities">
+                        <option value="">All</option>
+                    </select>
+                    <input class="btn btn-primary" type="submit" value="Filter" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div id="cardio"></div>
+    </div>
+
+    <div class="row text-center">
+        <h3>Strength Workouts</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <a class="btn btn-primary" asp-controller="Strength" asp-action="Create">Create New</a>
+        </div>
+        <div class="col-md-6"></div>
+        <div class="col-md-3">
+            <form class="form" asp-controller="Home" asp-action="Index" method="get">
+                <div class="dropdown">
+                    <select class="btn btn-secondary dropdown-toggle" asp-for="StrengthActivity" asp-items="Model.StrengthActivities">
+                        <option value="">All</option>
+                    </select>
+                    <input class="btn btn-primary" type="submit" value="Filter" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div id="strength"></div>
+    </div>
+</div>
+
+<script>
+    var model = @Html.Raw(Json.Serialize(Model));
+    Highcharts.chart("cardio", {
+        chart: {
+            type: 'line'
+        },
+
+        title: {
+            text: model["cardioActivity"]
+        },
+
+        yAxis: {
+            type: 'datetime',
+            labels: {
+                formatter: function () {
+                    return milliToTime(this.value);
+                }
+            },
+            title: {
+                text: 'Time [hh:mm:ss]'
+            }
+        },
+
+        xAxis: {
+            type: 'datetime',
+            title: {
+                text: 'Date'
+            }
+        },
+
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+
+        plotOptions: {
+            spline: {
+                marker: {
+                    enabled: true
+                }
+            }
+        },
+
+        series: model["cardioEvents"],
+
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        },
+
+        tooltip: {
+            formatter: function() {
+                var s = '<span>'+ formatDate(new Date(this.x)) +'</span>';
+
+                $.each(this.points, function(i, point) {
+                    s += '<br/><span style="color:' + point.color + '">\u25CF</span> ' + point.series.name + ': <b>' + milliToTime(point.y) + '</b>';
+                });
+
+                return s;
+            },
+            shared: true
+        },
+
+    });
+
+
+    Highcharts.chart("strength", {
+        chart: {
+            type: 'line'
+        },
+
+        title: {
+            text: model["strengthActivity"]
+        },
+
+        yAxis: {
+            title: {
+                text: 'Weight (kg)'
+            }
+        },
+
+        xAxis: {
+            type: 'datetime',
+            title: {
+                text: 'Date'
+            }
+        },
+
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+
+        plotOptions: {
+            spline: {
+                marker: {
+                    enabled: true
+                }
+            }
+        },
+
+        series: model["strengthEvents"],
+
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        },
+
+        tooltip: {
+            formatter: function() {
+                var s = '<span>'+ formatDate(new Date(this.x)) +'</span>';
+
+                $.each(this.points, function(i, point) {
+                    s += '<br/><span style="color:' + point.color + '">\u25CF</span> ' + point.series.name + ': <b>' + point.y + 'kg</b>';
+                });
+
+                return s;
+            },
+            shared: true
+        },
+
+    });
+
+    function milliToTime(time){
+        var hours=parseInt(time/3600000);
+        var mins=parseInt((parseInt(time%3600000))/60000);
+        var secs=parseInt(parseInt((parseInt(time%3600000))%60000)/1000);
+        var hourStr;
+        if(hours<10){
+            hourStr='0'+hours;
+        } else {
+            hourStr=hours+'';
+        }
+        var minStr;
+        if(mins<10){
+            minStr='0'+mins;
+        } else {
+            minStr=mins+'';
+        }
+        var secStr;
+        if(secs<10){
+            secStr='0'+secs;
+        } else {
+            secStr=secs+'';
+        }
+        return hourStr + ':' + minStr + ':' +secStr
+    }
+
+    function formatDate(date){
+        options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString("en-UK", options);
+    }
+</script>
